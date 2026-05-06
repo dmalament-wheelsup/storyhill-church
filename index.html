@@ -1,0 +1,963 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Community Groups · Storyhill Church</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,700;1,400;1,700&family=PT+Sans+Narrow:ital,wght@0,400;0,700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        /* Pulled directly from rendered storyhill.org */
+        --accent: #a3a075;          /* khaki/olive — primary buttons, links, accent headings */
+        --accent-dark: #8a8862;     /* slightly darker for hover */
+        --accent-soft: rgba(163, 160, 117, 0.14);
+        --ink: #546b70;             /* dusty teal-gray — body text and primary headings */
+        --ink-soft: #7a8b8e;        /* lighter variant for meta */
+        --muted: #8a9598;
+        --bg: #fcfbf8;              /* warm off-white — page background */
+        --cream: #f7f5ed;           /* warm cream — card / section background */
+        --border: #e8e4d6;
+        --shadow: 0 1px 6px rgba(84, 107, 112, 0.08);
+        --shadow-lg: 0 8px 28px rgba(84, 107, 112, 0.16);
+        --radius: 0;                /* Squarespace site has very flat / square edges */
+        --radius-sm: 2px;
+        --font-serif: 'Crimson Text', Georgia, serif;
+        --font-sans: 'PT Sans Narrow', Helvetica, Arial, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: var(--font-sans);
+        color: var(--ink);
+        background: var(--bg);
+        line-height: 1.5;
+        font-size: 17px;
+      }
+
+      .wrap {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 32px 24px 64px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        font-family: var(--font-sans);
+        font-weight: 400;
+        letter-spacing: 0;
+        margin: 0;
+        color: var(--ink);
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: center;
+        justify-content: space-between;
+        margin: 24px 0;
+        padding: 16px;
+        background: var(--cream);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+      }
+
+      .view-toggle {
+        display: inline-flex;
+        background: var(--bg);
+        border-radius: var(--radius);
+        padding: 4px;
+        border: 1px solid var(--border);
+      }
+      .view-toggle button {
+        font-family: var(--font-sans);
+        font-size: 18px;
+        letter-spacing: 0.03em;
+        text-transform: lowercase;
+        background: transparent;
+        border: 0;
+        padding: 8px 22px;
+        color: var(--muted);
+        cursor: pointer;
+        border-radius: var(--radius-sm);
+        transition: all 0.15s;
+      }
+      .view-toggle button.active {
+        background: var(--accent);
+        color: white;
+      }
+      .view-toggle button:hover:not(.active) {
+        color: var(--ink);
+      }
+
+      .filter-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        flex: 1 1 100%;
+      }
+      .filter-tag {
+        font-family: var(--font-sans);
+        font-size: 16px;
+        letter-spacing: 0.02em;
+        text-transform: lowercase;
+        padding: 5px 14px;
+        border-radius: 999px;
+        background: var(--bg);
+        color: var(--ink-soft);
+        border: 1px solid var(--border);
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .filter-tag:hover {
+        border-color: var(--accent);
+        color: var(--ink);
+      }
+      .filter-tag.active {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+      }
+
+      /* Card grid */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 24px;
+      }
+
+      .card {
+        background: var(--cream);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        transition:
+          transform 0.15s,
+          box-shadow 0.15s;
+      }
+      .card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+      }
+      .card h2 {
+        font-family: var(--font-sans);
+        font-weight: 400;
+        font-size: 32px;
+        color: var(--ink);
+        margin-bottom: 6px;
+        line-height: 1.1;
+      }
+      .card .when {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: var(--font-serif);
+        font-size: 19px;
+        font-weight: 400;
+        letter-spacing: 0;
+        color: var(--accent-dark);
+        border-left: 2px solid var(--accent);
+        padding: 4px 0 4px 12px;
+        margin: 10px 0 14px;
+      }
+      .card .when::before {
+        content: '';
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        background-color: var(--accent-dark);
+        -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zM12 13h5v5h-5z'/></svg>") center / contain no-repeat;
+        mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zM12 13h5v5h-5z'/></svg>") center / contain no-repeat;
+      }
+      .card .meta {
+        color: var(--ink-soft);
+        font-family: var(--font-serif);
+        font-style: italic;
+        font-size: 17px;
+        margin-bottom: 4px;
+      }
+      .card .meta strong {
+        color: var(--ink);
+        font-weight: 700;
+        font-style: normal;
+        font-family: var(--font-sans);
+        letter-spacing: 0.01em;
+      }
+      .card .desc {
+        font-family: var(--font-serif);
+        font-size: 18px;
+        line-height: 1.5;
+        color: var(--ink);
+        margin: 12px 0;
+        flex: 1;
+      }
+      .card .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 12px 0 16px;
+      }
+      .card .tag {
+        font-family: var(--font-sans);
+        font-size: 14px;
+        letter-spacing: 0.03em;
+        text-transform: lowercase;
+        padding: 3px 12px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent-dark);
+        font-weight: 400;
+      }
+
+      .btn {
+        font-family: var(--font-sans);
+        font-size: 18px;
+        letter-spacing: 0.04em;
+        text-transform: lowercase;
+        font-weight: 400;
+        padding: 10px 28px;
+        border: 0;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: all 0.15s;
+        display: inline-block;
+        text-decoration: none;
+        text-align: center;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: white;
+      }
+      .btn-primary:hover {
+        background: var(--accent-dark);
+      }
+      .btn-secondary {
+        background: transparent;
+        color: var(--muted);
+        border: 1px solid var(--border);
+      }
+      .btn-secondary:hover {
+        color: var(--ink);
+        border-color: var(--ink);
+      }
+
+      /* Map view */
+      #map-container {
+        height: 600px;
+        border-radius: var(--radius);
+        overflow: hidden;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+        background: var(--cream);
+        position: relative;
+      }
+      #map {
+        width: 100%;
+        height: 100%;
+      }
+      .map-card-overlay {
+        position: absolute;
+        bottom: 16px;
+        left: 16px;
+        right: 16px;
+        max-width: 380px;
+        pointer-events: auto;
+        animation: slideUp 0.2s ease-out;
+      }
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      .empty {
+        text-align: center;
+        padding: 48px 16px;
+        color: var(--muted);
+        font-family: var(--font-serif);
+        font-size: 18px;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 48px;
+        color: var(--muted);
+      }
+
+      /* Modal */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 16px;
+        animation: fade 0.15s ease-out;
+      }
+      @keyframes fade {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .modal {
+        background: var(--cream);
+        border-radius: var(--radius);
+        max-width: 480px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: var(--shadow-lg);
+        padding: 32px;
+        position: relative;
+      }
+      .modal h2 {
+        font-family: var(--font-sans);
+        font-weight: 400;
+        font-size: 32px;
+        color: var(--ink);
+        margin-bottom: 4px;
+        line-height: 1.1;
+      }
+      .modal .modal-sub {
+        font-family: var(--font-serif);
+        font-size: 17px;
+        color: var(--ink-soft);
+        margin-bottom: 24px;
+      }
+      .modal-close {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: transparent;
+        border: 0;
+        font-size: 28px;
+        color: var(--muted);
+        cursor: pointer;
+        line-height: 1;
+        padding: 4px 12px;
+        border-radius: var(--radius);
+      }
+      .modal-close:hover {
+        color: var(--ink);
+        background: var(--bg);
+      }
+
+      .field {
+        margin-bottom: 16px;
+      }
+      .field label {
+        display: block;
+        font-family: var(--font-sans);
+        font-size: 16px;
+        letter-spacing: 0.02em;
+        text-transform: lowercase;
+        color: var(--ink-soft);
+        margin-bottom: 6px;
+        font-weight: 400;
+      }
+      .field input,
+      .field textarea {
+        width: 100%;
+        font-family: var(--font-sans);
+        font-size: 17px;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--bg);
+        color: var(--ink);
+        transition:
+          border-color 0.15s,
+          background 0.15s;
+      }
+      .field input:focus,
+      .field textarea:focus {
+        outline: none;
+        border-color: var(--accent);
+        background: white;
+      }
+      .field textarea {
+        resize: vertical;
+        min-height: 110px;
+        font-family: var(--font-serif);
+      }
+
+      .form-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 24px;
+      }
+      .form-status {
+        padding: 12px;
+        border-radius: var(--radius);
+        margin-bottom: 16px;
+        font-size: 15px;
+      }
+      .form-status.success {
+        background: rgba(176, 205, 20, 0.15);
+        color: #5a6a08;
+        border: 1px solid rgba(176, 205, 20, 0.4);
+      }
+      .form-status.error {
+        background: #fde8e8;
+        color: #8b1a1a;
+        border: 1px solid #f5b7b7;
+      }
+
+      @media (max-width: 540px) {
+        .card h2 {
+          font-size: 28px;
+        }
+        .toolbar {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .view-toggle {
+          justify-content: center;
+        }
+        .modal {
+          padding: 24px 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="toolbar">
+        <div class="view-toggle" role="tablist">
+          <button id="btn-cards" class="active" role="tab" aria-selected="true">
+            Card View
+          </button>
+          <button id="btn-map" role="tab" aria-selected="false">
+            Map View
+          </button>
+        </div>
+        <div
+          class="filter-tags"
+          id="filter-tags"
+          aria-label="Filter by tag"
+        ></div>
+      </div>
+
+      <div id="cards-view">
+        <div id="loading" class="loading">Loading groups…</div>
+        <div id="grid" class="grid hidden"></div>
+        <div id="empty" class="empty hidden">
+          No groups match the selected filters.
+        </div>
+      </div>
+
+      <div id="map-view" class="hidden">
+        <div id="map-container">
+          <div id="map"></div>
+          <div id="map-card-overlay" class="map-card-overlay hidden"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact modal -->
+    <div
+      id="modal"
+      class="modal-overlay hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+    >
+      <div class="modal">
+        <button class="modal-close" id="modal-close" aria-label="Close">
+          &times;
+        </button>
+        <h2 id="modal-title">Get in touch</h2>
+        <p class="modal-sub" id="modal-sub">Send a message about this group.</p>
+        <div id="form-status" class="form-status hidden"></div>
+        <form id="contact-form" novalidate>
+          <input
+            type="hidden"
+            name="_subject"
+            id="form-subject"
+            value="Community Group inquiry"
+          />
+          <input type="hidden" name="_template" value="table" />
+          <input type="hidden" name="_captcha" value="false" />
+          <input type="text" name="_honey" style="display: none" />
+          <input type="hidden" name="group" id="form-group" />
+          <div class="field">
+            <label for="f-name">Your name *</label>
+            <input
+              id="f-name"
+              name="name"
+              type="text"
+              required
+              autocomplete="name"
+            />
+          </div>
+          <div class="field">
+            <label for="f-email">Email *</label>
+            <input
+              id="f-email"
+              name="email"
+              type="email"
+              required
+              autocomplete="email"
+            />
+          </div>
+          <div class="field">
+            <label for="f-message">Message *</label>
+            <textarea id="f-message" name="message" required></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" id="cancel-btn">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary" id="submit-btn">
+              Send Message
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      // ============================================================
+      //  CONFIG — fill these in
+      // ============================================================
+      const CONFIG = {
+        // Public Google Sheet ID (already filled in from your link)
+        SHEET_ID: '1wmD4ztb2ITvq5SLGdQGOu1mimUn5S0zKp0EHwjSDzvs',
+        // Email destination. FormSubmit.co will forward submissions here.
+        // First submission triggers a one-time confirmation email to you.
+        CONTACT_EMAIL: 'david.malament@gmail.com',
+        // Google Maps JS API key (browser key, restricted to your domain)
+        GOOGLE_MAPS_API_KEY: 'AIzaSyDr7wIDxWblxVOcAStSxnI-XNC-Lpe3L7s',
+        // Optional: starting map center if no coordinates yet
+        MAP_DEFAULT_CENTER: { lat: 35.401949, lng: -80.761148 },
+        MAP_DEFAULT_ZOOM: 11,
+      };
+
+      // ============================================================
+      //  Data fetching
+      // ============================================================
+      // Use the gviz JSON endpoint loaded via <script> tag so we sidestep CORS.
+      // Google's CSV endpoint doesn't always send Access-Control-Allow-Origin,
+      // and fetch() from file:// is blocked anyway. A <script> tag bypasses both.
+      // The response is wrapped in: google.visualization.Query.setResponse({...});
+      function loadSheetViaScript() {
+        return new Promise((resolve, reject) => {
+          // gviz lets you specify the callback via reqId, but the function name
+          // it calls is fixed: google.visualization.Query.setResponse.
+          window.google = window.google || {};
+          window.google.visualization = window.google.visualization || {};
+          window.google.visualization.Query =
+            window.google.visualization.Query || {};
+          window.google.visualization.Query.setResponse = (data) => {
+            cleanup();
+            resolve(data);
+          };
+          const cleanup = () => {
+            if (s.parentNode) s.parentNode.removeChild(s);
+          };
+          const s = document.createElement('script');
+          s.src = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:json&headers=0`;
+          s.onerror = () => {
+            cleanup();
+            reject(new Error('Failed to load sheet'));
+          };
+          document.head.appendChild(s);
+        });
+      }
+
+      function parseCoords(s) {
+        if (!s) return null;
+        const m = s.match(/(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/);
+        if (!m) return null;
+        const lat = parseFloat(m[1]),
+          lng = parseFloat(m[2]);
+        if (isNaN(lat) || isNaN(lng)) return null;
+        return { lat, lng };
+      }
+
+      function parseTags(s) {
+        if (!s) return [];
+        return s
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean);
+      }
+
+      // gviz cells are { v: <typed value>, f: <formatted string> } or null.
+      // We always want the plain string. Coords come back as strings since
+      // the column is mixed/text, but we tolerate either.
+      function cellText(cell) {
+        if (!cell) return '';
+        if (cell.f != null) return String(cell.f);
+        if (cell.v == null) return '';
+        return String(cell.v);
+      }
+
+      async function loadGroups() {
+        const data = await loadSheetViaScript();
+        const rows = ((data && data.table && data.table.rows) || []).map((r) =>
+          (r.c || []).map(cellText),
+        );
+        return rows
+          .filter((r) => r.some((v) => v && v.trim()))
+          .map((r, i) => ({
+            id: i,
+            name: (r[0] || '').trim(), // A — leader/contact
+            time: (r[1] || '').trim(), // B — meeting time
+            coords: parseCoords(r[2]), // C — coordinates
+            location: (r[3] || '').trim(), // D — location (card title)
+            description: (r[4] || '').trim(), // E — description
+            tags: parseTags(r[5] || ''), // F — tags
+          }))
+          .filter((g) => g.location);
+      }
+
+      // ============================================================
+      //  Rendering
+      // ============================================================
+      const state = {
+        groups: [],
+        activeTags: new Set(),
+        view: 'cards',
+        map: null,
+        markers: [],
+      };
+
+      const $ = (id) => document.getElementById(id);
+      const escapeHtml = (s) =>
+        String(s).replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              '&': '&amp;',
+              '<': '&lt;',
+              '>': '&gt;',
+              '"': '&quot;',
+              "'": '&#39;',
+            })[c],
+        );
+
+      function cardHtml(g, opts = {}) {
+        const tags = g.tags
+          .map((t) => `<span class="tag">${escapeHtml(t)}</span>`)
+          .join('');
+        return `
+        <article class="card" data-id="${g.id}">
+          <h2>${escapeHtml(g.location)}</h2>
+          ${g.name ? `<div class="meta">Led by <strong>${escapeHtml(g.name)}</strong></div>` : ''}
+          ${g.time ? `<div class="when">${escapeHtml(g.time)}</div>` : ''}
+          ${g.description ? `<p class="desc">${escapeHtml(g.description)}</p>` : ''}
+          ${tags ? `<div class="tags">${tags}</div>` : ''}
+          <button class="btn btn-primary contact-btn" data-id="${g.id}">Contact</button>
+        </article>
+      `;
+      }
+
+      function filteredGroups() {
+        if (state.activeTags.size === 0) return state.groups;
+        return state.groups.filter((g) =>
+          [...state.activeTags].every((t) => g.tags.includes(t)),
+        );
+      }
+
+      function renderTags() {
+        const all = new Set();
+        state.groups.forEach((g) => g.tags.forEach((t) => all.add(t)));
+        const container = $('filter-tags');
+        container.innerHTML = [...all]
+          .sort()
+          .map(
+            (t) =>
+              `<button class="filter-tag${state.activeTags.has(t) ? ' active' : ''}" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</button>`,
+          )
+          .join('');
+      }
+
+      function renderCards() {
+        const groups = filteredGroups();
+        const grid = $('grid');
+        const empty = $('empty');
+        if (groups.length === 0) {
+          grid.classList.add('hidden');
+          empty.classList.remove('hidden');
+          return;
+        }
+        empty.classList.add('hidden');
+        grid.classList.remove('hidden');
+        grid.innerHTML = groups.map((g) => cardHtml(g)).join('');
+      }
+
+      function setView(view) {
+        state.view = view;
+        $('btn-cards').classList.toggle('active', view === 'cards');
+        $('btn-map').classList.toggle('active', view === 'map');
+        $('btn-cards').setAttribute('aria-selected', view === 'cards');
+        $('btn-map').setAttribute('aria-selected', view === 'map');
+        $('cards-view').classList.toggle('hidden', view !== 'cards');
+        $('map-view').classList.toggle('hidden', view !== 'map');
+        if (view === 'map') ensureMap();
+      }
+
+      // ============================================================
+      //  Map
+      // ============================================================
+      let mapsApiPromise = null;
+      function loadMapsApi() {
+        if (mapsApiPromise) return mapsApiPromise;
+        mapsApiPromise = new Promise((resolve, reject) => {
+          if (window.google && window.google.maps) return resolve();
+          if (
+            !CONFIG.GOOGLE_MAPS_API_KEY ||
+            CONFIG.GOOGLE_MAPS_API_KEY.startsWith('YOUR_')
+          ) {
+            return reject(new Error('Google Maps API key not configured'));
+          }
+          window.__shMapsCb = () => resolve();
+          const s = document.createElement('script');
+          s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(CONFIG.GOOGLE_MAPS_API_KEY)}&callback=__shMapsCb&loading=async`;
+          s.async = true;
+          s.onerror = () => reject(new Error('Failed to load Google Maps'));
+          document.head.appendChild(s);
+        });
+        return mapsApiPromise;
+      }
+
+      async function ensureMap() {
+        if (state.map) {
+          renderMarkers();
+          return;
+        }
+        try {
+          await loadMapsApi();
+        } catch (err) {
+          $('map').innerHTML =
+            `<div class="empty">Map unavailable. Please add a Google Maps API key in CONFIG.GOOGLE_MAPS_API_KEY.</div>`;
+          return;
+        }
+        state.map = new google.maps.Map($('map'), {
+          center: CONFIG.MAP_DEFAULT_CENTER,
+          zoom: CONFIG.MAP_DEFAULT_ZOOM,
+          mapTypeControl: false,
+          streetViewControl: false,
+          fullscreenControl: false,
+          styles: [{ featureType: 'poi', stylers: [{ visibility: 'off' }] }],
+        });
+        $('map').addEventListener('click', (e) => {
+          // Hide overlay if user clicks empty map (but not on a marker — marker clicks stop propagation via gmap event)
+        });
+        renderMarkers();
+      }
+
+      function renderMarkers() {
+        if (!state.map) return;
+        // Clear existing markers
+        state.markers.forEach((m) => m.setMap(null));
+        state.markers = [];
+        $('map-card-overlay').classList.add('hidden');
+
+        const groups = filteredGroups().filter((g) => g.coords);
+        const bounds = new google.maps.LatLngBounds();
+
+        groups.forEach((g) => {
+          const marker = new google.maps.Marker({
+            position: g.coords,
+            map: state.map,
+            title: g.location,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 10,
+              fillColor: '#a3a075',
+              fillOpacity: 1,
+              strokeColor: '#ffffff',
+              strokeWeight: 2,
+            },
+          });
+          marker.addListener('click', () => showMapCard(g));
+          state.markers.push(marker);
+          bounds.extend(g.coords);
+        });
+
+        if (groups.length > 1) {
+          state.map.fitBounds(bounds, 64);
+        } else if (groups.length === 1) {
+          state.map.setCenter(groups[0].coords);
+          state.map.setZoom(13);
+        }
+
+        // Hide overlay when clicking the map background
+        state.map.addListener('click', () => {
+          $('map-card-overlay').classList.add('hidden');
+        });
+      }
+
+      function showMapCard(g) {
+        const overlay = $('map-card-overlay');
+        overlay.innerHTML = cardHtml(g);
+        overlay.classList.remove('hidden');
+      }
+
+      // ============================================================
+      //  Modal
+      // ============================================================
+      function openContactModal(group) {
+        $('form-group').value =
+          group.location + (group.name ? ` (${group.name})` : '');
+        $('form-subject').value = `Community Group inquiry: ${group.location}`;
+        $('modal-title').textContent = `Contact: ${group.location}`;
+        $('modal-sub').textContent = group.name
+          ? `Send a message to ${group.name} about this group.`
+          : 'Send a message about this group.';
+        $('form-status').classList.add('hidden');
+        $('contact-form').reset();
+        $('modal').classList.remove('hidden');
+        setTimeout(() => $('f-name').focus(), 50);
+      }
+
+      function closeModal() {
+        $('modal').classList.add('hidden');
+      }
+
+      async function submitForm(e) {
+        e.preventDefault();
+        const form = $('contact-form');
+        const status = $('form-status');
+        const submitBtn = $('submit-btn');
+
+        // Native validation
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending…';
+        status.classList.add('hidden');
+
+        try {
+          const data = new FormData(form);
+          const res = await fetch(
+            `https://formsubmit.co/ajax/${encodeURIComponent(CONFIG.CONTACT_EMAIL)}`,
+            {
+              method: 'POST',
+              headers: { Accept: 'application/json' },
+              body: data,
+            },
+          );
+          const json = await res.json().catch(() => ({}));
+          if (
+            res.ok &&
+            (json.success === 'true' ||
+              json.success === true ||
+              res.status === 200)
+          ) {
+            status.className = 'form-status success';
+            status.textContent = 'Thanks! Your message has been sent.';
+            status.classList.remove('hidden');
+            form.reset();
+            setTimeout(closeModal, 1800);
+          } else {
+            throw new Error(json.message || 'Submission failed');
+          }
+        } catch (err) {
+          status.className = 'form-status error';
+          status.textContent =
+            'Sorry, something went wrong. Please email ' +
+            CONFIG.CONTACT_EMAIL +
+            ' directly.';
+          status.classList.remove('hidden');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send Message';
+        }
+      }
+
+      // ============================================================
+      //  Wire up events
+      // ============================================================
+      function init() {
+        $('btn-cards').addEventListener('click', () => setView('cards'));
+        $('btn-map').addEventListener('click', () => setView('map'));
+
+        // Tag filter clicks
+        $('filter-tags').addEventListener('click', (e) => {
+          const btn = e.target.closest('.filter-tag');
+          if (!btn) return;
+          const tag = btn.dataset.tag;
+          if (state.activeTags.has(tag)) state.activeTags.delete(tag);
+          else state.activeTags.add(tag);
+          renderTags();
+          renderCards();
+          if (state.view === 'map') renderMarkers();
+        });
+
+        // Card contact button + map overlay contact button (event delegation)
+        document.body.addEventListener('click', (e) => {
+          const btn = e.target.closest('.contact-btn');
+          if (!btn) return;
+          const id = parseInt(btn.dataset.id, 10);
+          const g = state.groups.find((x) => x.id === id);
+          if (g) openContactModal(g);
+        });
+
+        // Modal
+        $('modal-close').addEventListener('click', closeModal);
+        $('cancel-btn').addEventListener('click', closeModal);
+        $('modal').addEventListener('click', (e) => {
+          if (e.target.id === 'modal') closeModal();
+        });
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') closeModal();
+        });
+        $('contact-form').addEventListener('submit', submitForm);
+      }
+
+      async function start() {
+        init();
+        try {
+          state.groups = await loadGroups();
+          $('loading').classList.add('hidden');
+          renderTags();
+          renderCards();
+        } catch (err) {
+          $('loading').textContent =
+            'Could not load groups. Please try again later.';
+          console.error(err);
+        }
+      }
+
+      start();
+    </script>
+  </body>
+</html>
