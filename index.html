@@ -766,6 +766,7 @@
         activeWhen: new Set(),
         view: 'cards',
         map: null,
+        mapSettled: false, // true once the map's first render has settled
         markers: [],
       };
 
@@ -940,9 +941,27 @@
         if (!g.coords) return;
         await setView('map');
         if (!state.map) return; // map failed to load (no API key)
+        // On first creation the map is still settling (sizing its container,
+        // running its initial fit); applying center/zoom now gets clobbered.
+        // Wait for its first 'idle' once, then it's safe to frame directly.
+        if (!state.mapSettled) await whenMapFirstIdle();
         state.map.setCenter(g.coords);
         state.map.setZoom(15);
         showMapCard(g);
+      }
+
+      // Resolve once the freshly-created map has finished its initial render.
+      // Sets state.mapSettled so later calls skip the wait (no per-click lag).
+      function whenMapFirstIdle() {
+        return new Promise((resolve) => {
+          if (!state.map || !window.google || !google.maps) return resolve();
+          const done = () => {
+            state.mapSettled = true;
+            resolve();
+          };
+          google.maps.event.addListenerOnce(state.map, 'idle', done);
+          setTimeout(done, 800); // safety net if 'idle' already passed
+        });
       }
 
       // ============================================================
