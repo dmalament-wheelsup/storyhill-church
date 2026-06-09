@@ -32,18 +32,71 @@ Pick any static host. Easiest options:
 
 ### 4. Embed in Squarespace
 
-In your Squarespace page editor, add a **Code Block** and paste:
+In your Squarespace page editor, add a **Code Block** and paste the iframe **plus** the small listener script below. The page measures its own content and tells the parent how tall to make the iframe, so there are no nested scrollbars and no trailing whitespace — the embed flows as one continuous page.
 
 ```html
 <iframe
+  id="cg-iframe"
   src="https://YOUR-HOST/index.html"
-  style="width:100%; min-height:1200px; border:0;"
+  style="width:100%; border:0; display:block;"
   loading="lazy"
-  title="Community Groups">
+  title="Community Groups"
+  allow="geolocation"
+  scrolling="no"
+  referrerpolicy="strict-origin-when-cross-origin">
 </iframe>
+<script>
+(function () {
+  var iframe = document.getElementById('cg-iframe');
+  var lockY = 0, locked = false;
+  function sendViewport() {
+    var r = iframe.getBoundingClientRect();
+    var offsetTop = Math.max(0, -r.top);
+    var viewportHeight = Math.max(0, Math.min(window.innerHeight, r.bottom) - Math.max(0, r.top));
+    iframe.contentWindow.postMessage(
+      { type: 'storyhill:viewport', offsetTop: offsetTop, viewportHeight: viewportHeight }, '*');
+  }
+  function setLock(on) {
+    if (on === locked) return;
+    locked = on;
+    if (on) {
+      lockY = window.scrollY;
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+      window.scrollTo(0, lockY);
+    }
+  }
+  window.addEventListener('message', function (e) {
+    var d = e.data || {};
+    if (d.type === 'storyhill:height' && typeof d.height === 'number') {
+      iframe.style.height = d.height + 'px';
+    } else if (d.type === 'storyhill:request-viewport') {
+      sendViewport();
+    } else if (d.type === 'storyhill:scroll-lock') {
+      setLock(!!d.locked);
+    }
+  });
+  window.addEventListener('scroll', sendViewport, { passive: true });
+  window.addEventListener('resize', sendViewport);
+})();
+</script>
 ```
 
-The page is responsive, but iframes don't auto-size. `min-height:1200px` is a safe default for the card grid; bump it up if you have many groups.
+**Don't** set a fixed `height`/`min-height` on the iframe and **do** keep `scrolling="no"` — the listener sets the height for you. Note this is the newer Squarespace **Code Block** (`website.components.code`), which runs embedded scripts on the published (logged-out) page; while editing, scripts are disabled, so verify on the live page.
+
+#### How the parent ↔ iframe protocol works
+
+All messages are `postMessage` payloads with a `type` field:
+
+- `storyhill:height` `{ height }` — iframe → parent. Sent whenever content height changes (load, filter toggles, card/map view switch, responsive reflow, font load). Parent sets `iframe.style.height`.
+- `storyhill:request-viewport` — iframe → parent, sent when a modal opens. Parent replies with…
+- `storyhill:viewport` `{ offsetTop, viewportHeight }` — parent → iframe. Describes which slice of the (auto-sized) iframe is currently on screen, so the modal can be centered where the user can actually see it rather than across the full content height.
+- `storyhill:scroll-lock` `{ locked }` — iframe → parent. Sent on modal open/close so the parent can freeze/restore its own page scroll (the iframe also locks its own scroll). Without this, the page behind the modal would scroll.
+
+When the page is opened directly (not framed) all of this is skipped and it behaves as a normal standalone page.
 
 ## Customizing
 

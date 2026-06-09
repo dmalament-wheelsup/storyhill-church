@@ -41,6 +41,11 @@
         margin: 0;
         padding: 0;
       }
+      /* While a modal is open, lock scrolling of the content behind it. */
+      html.modal-open,
+      body.modal-open {
+        overflow: hidden;
+      }
       body {
         font-family: var(--font-sans);
         color: var(--ink);
@@ -1050,11 +1055,21 @@
         $('form-status').classList.add('hidden');
         $('contact-form').reset();
         $('modal').classList.remove('hidden');
+        // Ask the parent where the viewport is, then place the modal in view.
+        requestViewport();
+        positionModal();
+        setScrollLock(true);
         setTimeout(() => $('f-name').focus(), 50);
       }
 
       function closeModal() {
-        $('modal').classList.add('hidden');
+        const overlay = $('modal');
+        overlay.classList.add('hidden');
+        // Clear any inline positioning so the CSS fixed-centering returns.
+        overlay.style.position = '';
+        overlay.style.top = '';
+        overlay.style.height = '';
+        setScrollLock(false);
       }
 
       async function submitForm(e) {
@@ -1109,6 +1124,99 @@
           submitBtn.disabled = false;
           submitBtn.textContent = 'Send Message';
         }
+      }
+
+      // ============================================================
+      //  Iframe auto-resize
+      //  When embedded (e.g. in Squarespace), post our content height to
+      //  the parent so it can size the iframe and avoid nested scrollbars.
+      //  The parent listens for { type: 'storyhill:height', height } and
+      //  sets iframe.style.height. See README for the parent-side snippet.
+      // ============================================================
+      let lastPostedHeight = 0;
+      function postHeight() {
+        if (window.parent === window) return; // not framed
+        // Measure the BODY, not documentElement: once the parent applies our
+        // posted height to the iframe element, that height feeds back into
+        // documentElement.scrollHeight, which would ratchet upward and never
+        // shrink. The body reflects the true content height. Add a hair to
+        // avoid sub-pixel clipping.
+        const body = document.body;
+        const height = Math.ceil(
+          Math.max(body.scrollHeight, body.offsetHeight),
+        );
+        if (height === lastPostedHeight) return; // dedupe
+        lastPostedHeight = height;
+        window.parent.postMessage(
+          { type: 'storyhill:height', height },
+          '*',
+        );
+      }
+
+      // The parent reports which slice of our (now auto-sized) content is
+      // actually on screen, so overlays can be centered where the user can
+      // see them. Null until the parent answers / when not framed.
+      let parentViewport = null;
+
+      function initAutoResize() {
+        if (window.parent === window) return;
+        postHeight();
+        // A ResizeObserver on <body> catches virtually every content change
+        // (renders, filter toggles, view switches, responsive reflow).
+        if (window.ResizeObserver) {
+          new ResizeObserver(() => postHeight()).observe(document.body);
+        }
+        window.addEventListener('resize', postHeight);
+        window.addEventListener('load', postHeight);
+        // Late web-font load can shift heights after first paint.
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(postHeight);
+        }
+        // Receive the parent's visible-band reports.
+        window.addEventListener('message', (e) => {
+          const d = e.data;
+          if (d && d.type === 'storyhill:viewport') {
+            parentViewport = {
+              // How far our content top is scrolled past the parent's
+              // viewport top (px into our content), and the visible height.
+              top: Math.max(0, Number(d.offsetTop) || 0),
+              height: Number(d.viewportHeight) || 0,
+            };
+            if (!$('modal').classList.contains('hidden')) positionModal();
+          }
+        });
+      }
+
+      function requestViewport() {
+        if (window.parent === window) return;
+        window.parent.postMessage({ type: 'storyhill:request-viewport' }, '*');
+      }
+
+      // Lock/unlock scrolling behind the modal. Locks our own document and,
+      // when embedded, asks the parent to lock its page scroll too — the
+      // parent's scroll is what the user sees moving behind the backdrop.
+      function setScrollLock(locked) {
+        document.documentElement.classList.toggle('modal-open', locked);
+        document.body.classList.toggle('modal-open', locked);
+        if (window.parent !== window) {
+          window.parent.postMessage(
+            { type: 'storyhill:scroll-lock', locked: !!locked },
+            '*',
+          );
+        }
+      }
+
+      // Center the modal within the parent's currently-visible band when we
+      // know it; otherwise fall back to CSS fixed-centering over our own box.
+      function positionModal() {
+        const modal = $('modal').querySelector('.modal');
+        if (parentViewport && parentViewport.height) {
+          const overlay = $('modal');
+          overlay.style.position = 'absolute';
+          overlay.style.top = parentViewport.top + 'px';
+          overlay.style.height = parentViewport.height + 'px';
+        }
+        if (modal) modal.scrollTop = 0;
       }
 
       // ============================================================
@@ -1176,6 +1284,7 @@
 
       async function start() {
         init();
+        initAutoResize();
         try {
           state.groups = await loadGroups();
           $('loading').classList.add('hidden');
