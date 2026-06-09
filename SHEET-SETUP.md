@@ -24,6 +24,7 @@ position.
 | **D** | Location | `Davidson` | The subtitle under the title. A town/area name is fine. |
 | **E** | Description | `Young families, over dinner.` | Free text. |
 | **F** | Tags | `young families, dinner` | Comma-separated. Each becomes a filter chip. |
+| **G** | Contact email(s) | `lead@storyhill.org, colead@storyhill.org` | Where the contact form sends. Comma- or semicolon-separated. `grow@storyhill.org` is **always** copied too; blank → goes to `grow@storyhill.org` only. |
 
 ### Why column B format matters
 
@@ -57,6 +58,29 @@ addresses (that protects member privacy). To set one:
 
 For several groups in the same town, click slightly different spots so their
 dots spread out on the map.
+
+### Contact emails (column G)
+
+List the leader(s) who should receive contact-form messages for this group,
+comma- or semicolon-separated:
+
+```
+lead@storyhill.org, colead@storyhill.org
+```
+
+- **`grow@storyhill.org` is always copied** on every message, so the office
+  stays in the loop even when a group has its own leaders listed.
+- Leave column G **blank** to send only to `grow@storyhill.org`.
+- Messages are delivered by a small mailer (the Cloudflare Worker in
+  `worker/`); see `worker/README.md` for its one-time setup. Unlike the old
+  form, leaders do **not** have to confirm anything — add an address and it
+  just works.
+
+> **Privacy note:** because the sheet is publicly viewable, anything in column
+> G is technically readable by someone who finds the sheet, even though the
+> page never displays it. Use addresses you're comfortable having reachable.
+> If that's a concern, point column G at a forwarding alias (e.g.
+> `wanderers@storyhill.org`) instead of a personal inbox.
 
 ---
 

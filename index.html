@@ -615,15 +615,14 @@
         <p class="modal-sub" id="modal-sub">Send a message about this group.</p>
         <div id="form-status" class="form-status hidden"></div>
         <form id="contact-form" novalidate>
+          <!-- Honeypot: bots fill it, humans never see it. Worker rejects if set. -->
           <input
-            type="hidden"
-            name="_subject"
-            id="form-subject"
-            value="Community Group inquiry"
+            type="text"
+            name="_honey"
+            tabindex="-1"
+            autocomplete="off"
+            style="display: none"
           />
-          <input type="hidden" name="_template" value="table" />
-          <input type="hidden" name="_captcha" value="false" />
-          <input type="text" name="_honey" style="display: none" />
           <input type="hidden" name="group" id="form-group" />
           <div class="field">
             <label for="f-name">Your name *</label>
@@ -668,8 +667,12 @@
       const CONFIG = {
         // Public Google Sheet ID (already filled in from your link)
         SHEET_ID: '1wmD4ztb2ITvq5SLGdQGOu1mimUn5S0zKp0EHwjSDzvs',
-        // Email destination. FormSubmit.co will forward submissions here.
-        // First submission triggers a one-time confirmation email to you.
+        // Contact-form endpoint: the Cloudflare Worker that sends the email
+        // (see worker/ and SHEET-SETUP.md). Fill in after you deploy it.
+        CONTACT_ENDPOINT: 'https://YOUR-WORKER.workers.dev',
+        // Shown in the "email us directly" message if submission fails. The
+        // Worker always copies this address on every message (configured there
+        // as ALWAYS_TO), so per-group routing still keeps grow@ in the loop.
         CONTACT_EMAIL: 'grow@storyhill.org',
         // Google Maps JS API key (browser key, restricted to your domain)
         GOOGLE_MAPS_API_KEY: 'AIzaSyDr7wIDxWblxVOcAStSxnI-XNC-Lpe3L7s',
@@ -728,6 +731,17 @@
           .filter(Boolean);
       }
 
+      // Column G: a comma/semicolon-separated list of recipient emails for
+      // this group's contact form. Keep only well-formed addresses so a stray
+      // typo can't break delivery; the page never displays these.
+      function parseEmails(s) {
+        if (!s) return [];
+        return s
+          .split(/[,;]/)
+          .map((e) => e.trim())
+          .filter((e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
+      }
+
       // gviz cells are { v: <typed value>, f: <formatted string> } or null.
       // We always want the plain string. Coords come back as strings since
       // the column is mixed/text, but we tolerate either.
@@ -753,6 +767,7 @@
             location: (r[3] || '').trim(), // D — location (subtitle)
             description: (r[4] || '').trim(), // E — description
             tags: parseTags(r[5] || ''), // F — tags
+            recipients: parseEmails(r[6] || ''), // G — contact email(s)
           }))
           .filter((g) => g.name);
       }
@@ -768,6 +783,7 @@
         map: null,
         mapSettled: false, // true once the map's first render has settled
         markers: [],
+        activeGroup: null, // group whose contact modal is currently open
       };
 
       // ============================================================
@@ -1066,9 +1082,9 @@
       //  Modal
       // ============================================================
       function openContactModal(group) {
+        state.activeGroup = group; // submitForm reads its recipients
         $('form-group').value =
           group.name + (group.location ? ` (${group.location})` : '');
-        $('form-subject').value = `Community Group inquiry: ${group.name}`;
         $('modal-title').textContent = `Contact: ${group.name}`;
         $('modal-sub').textContent = 'Send a message about this group.';
         $('form-status').classList.add('hidden');
@@ -1108,29 +1124,35 @@
         status.classList.add('hidden');
 
         try {
-          const data = new FormData(form);
-          const res = await fetch(
-            `https://formsubmit.co/ajax/${encodeURIComponent(CONFIG.CONTACT_EMAIL)}`,
-            {
-              method: 'POST',
-              headers: { Accept: 'application/json' },
-              body: data,
-            },
-          );
+          const group = state.activeGroup;
+          // Send the group's column-G recipients (may be empty). The Worker
+          // always copies grow@storyhill.org and uses it alone when this list
+          // is empty, so that rule lives server-side.
+          const recipients =
+            group && group.recipients ? group.recipients : [];
+          const payload = {
+            recipients,
+            group: group ? group.name : '',
+            location: group ? group.location : '',
+            name: form.name.value.trim(),
+            email: form.email.value.trim(),
+            message: form.message.value.trim(),
+            _honey: form._honey.value, // honeypot; Worker rejects if filled
+          };
+          const res = await fetch(CONFIG.CONTACT_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
           const json = await res.json().catch(() => ({}));
-          if (
-            res.ok &&
-            (json.success === 'true' ||
-              json.success === true ||
-              res.status === 200)
-          ) {
+          if (res.ok && json.success) {
             status.className = 'form-status success';
             status.textContent = 'Thanks! Your message has been sent.';
             status.classList.remove('hidden');
             form.reset();
             setTimeout(closeModal, 1800);
           } else {
-            throw new Error(json.message || 'Submission failed');
+            throw new Error(json.error || 'Submission failed');
           }
         } catch (err) {
           status.className = 'form-status error';

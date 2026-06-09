@@ -1,0 +1,19 @@
+name = "storyhill-contact"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+
+# Non-secret config. Edit these to match your setup, then `wrangler deploy`.
+[vars]
+# Verified Resend sender. The domain must be verified in Resend (see setup doc).
+MAIL_FROM = "Storyhill Groups <groups@storyhill.org>"
+
+# Origins allowed to POST to this Worker (comma-separated, no trailing slash).
+# Include both your Squarespace site and the GitHub Pages host.
+ALLOWED_ORIGINS = "https://www.storyhill.org,https://dmalament-wheelsup.github.io"
+
+# Copied on EVERY message (in addition to the group's column-G recipients),
+# and the sole recipient when a group lists none.
+ALWAYS_TO = "grow@storyhill.org"
+
+# RESEND_API_KEY is a SECRET — do not put it here.
+# Set it with:  wrangler secret put RESEND_API_KEY
