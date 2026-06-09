@@ -4,8 +4,8 @@ A single-file static page (`index.html`) that lists Storyhill community groups f
 
 ## How it works
 
-- Reads the Google Sheet directly using its public CSV endpoint (`gviz/tq?tqx=out:csv`). No API key, no backend. The sheet must remain set to "Anyone with the link can view".
-- The sheet has **no header row** — data starts at row 1. Columns: A=name, B=time, C=coordinates, D=location, E=description, F=tags.
+- Reads the Google Sheet directly using its public gviz endpoint (`gviz/tq?tqx=out:json`), loaded via a `<script>` tag to sidestep CORS. No API key, no backend. The sheet must remain set to "Anyone with the link can view".
+- The sheet has **no header row** — data starts at row 1. Columns: A=name (card title), B=time, C=coordinates, D=location (card subtitle), E=description, F=tags. Column B is free text (e.g. "Tuesday mornings", "Wed 9:30 AM") and also drives the time-of-day / day-of-week filters.
 - Form submissions are forwarded to your email through [FormSubmit.co](https://formsubmit.co) — also no backend, no signup. The first submission you receive will be a one-time confirmation email; click the link inside to activate forwarding for all future messages.
 - The map uses the Google Maps JavaScript API and requires a browser API key.
 
