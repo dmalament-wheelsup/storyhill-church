@@ -13,21 +13,23 @@
     <style>
       :root {
         /* Pulled directly from rendered storyhill.org */
-        --accent: #a3a075;          /* khaki/olive — primary buttons, links, accent headings */
-        --accent-dark: #8a8862;     /* slightly darker for hover */
+        --accent: #a3a075; /* khaki/olive — primary buttons, links, accent headings */
+        --accent-dark: #8a8862; /* slightly darker for hover */
         --accent-soft: rgba(163, 160, 117, 0.14);
-        --ink: #546b70;             /* dusty teal-gray — body text and primary headings */
-        --ink-soft: #7a8b8e;        /* lighter variant for meta */
+        --ink: #546b70; /* dusty teal-gray — body text and primary headings */
+        --ink-soft: #7a8b8e; /* lighter variant for meta */
         --muted: #8a9598;
-        --bg: #fcfbf8;              /* warm off-white — page background */
-        --cream: #f7f5ed;           /* warm cream — card / section background */
+        --bg: #fcfbf8; /* warm off-white — page background */
+        --cream: #f7f5ed; /* warm cream — card / section background */
         --border: #e8e4d6;
         --shadow: 0 1px 6px rgba(84, 107, 112, 0.08);
         --shadow-lg: 0 8px 28px rgba(84, 107, 112, 0.16);
-        --radius: 0;                /* Squarespace site has very flat / square edges */
+        --radius: 0; /* Squarespace site has very flat / square edges */
         --radius-sm: 2px;
         --font-serif: 'Crimson Text', Georgia, serif;
         --font-sans: 'PT Sans Narrow', Helvetica, Arial, sans-serif;
+        --icon-calendar: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zM12 13h5v5h-5z'/></svg>");
+        --icon-clock: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16zm.5-13H11v6l5.2 3.1.8-1.3-4.5-2.7z'/></svg>");
       }
 
       * {
@@ -106,8 +108,48 @@
       .filter-tags {
         display: flex;
         flex-wrap: wrap;
-        gap: 8px;
+        column-gap: 8px;
+        row-gap: 12px;
         flex: 1 1 100%;
+      }
+      .filter-when {
+        padding-top: 12px;
+        margin-top: 4px;
+        border-top: 1px solid var(--border);
+        align-items: center;
+      }
+      .when-group {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        column-gap: 8px;
+        row-gap: 12px;
+      }
+      .when-divider {
+        align-self: stretch;
+        width: 1px;
+        min-height: 28px;
+        background: var(--border);
+        margin: 0 4px;
+      }
+      .when-icon {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+        background-color: var(--ink-soft);
+        margin-right: 2px;
+      }
+      .when-icon-time {
+        -webkit-mask: var(--icon-clock) center / contain no-repeat;
+        mask: var(--icon-clock) center / contain no-repeat;
+      }
+      .when-icon-day {
+        -webkit-mask: var(--icon-calendar) center / contain no-repeat;
+        mask: var(--icon-calendar) center / contain no-repeat;
+      }
+      /* Day buttons carry both labels; show the full name by default. */
+      .label-abbr {
+        display: none;
       }
       .filter-tag {
         font-family: var(--font-sans);
@@ -182,8 +224,8 @@
         height: 16px;
         flex-shrink: 0;
         background-color: var(--accent-dark);
-        -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zM12 13h5v5h-5z'/></svg>") center / contain no-repeat;
-        mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zM12 13h5v5h-5z'/></svg>") center / contain no-repeat;
+        -webkit-mask: var(--icon-calendar) center / contain no-repeat;
+        mask: var(--icon-calendar) center / contain no-repeat;
       }
       .card .meta {
         color: var(--ink-soft);
@@ -449,6 +491,27 @@
         .modal {
           padding: 24px 20px;
         }
+        /* Abbreviate day names so the day row fits without wrapping. */
+        .label-full {
+          display: none;
+        }
+        .label-abbr {
+          display: inline;
+        }
+        /* Tighten horizontal spacing so all seven day pills fit one line,
+           but keep generous vertical spacing for when filters wrap. */
+        .filter-when,
+        .when-group {
+          column-gap: 6px;
+          row-gap: 12px;
+        }
+        .filter-when .filter-tag {
+          padding: 5px 10px;
+          font-size: 15px;
+        }
+        .when-divider {
+          margin: 0 2px;
+        }
       }
     </style>
   </head>
@@ -467,6 +530,11 @@
           class="filter-tags"
           id="filter-tags"
           aria-label="Filter by tag"
+        ></div>
+        <div
+          class="filter-tags filter-when"
+          id="filter-when"
+          aria-label="Filter by time of day and day of week"
         ></div>
       </div>
 
@@ -557,7 +625,7 @@
         SHEET_ID: '1wmD4ztb2ITvq5SLGdQGOu1mimUn5S0zKp0EHwjSDzvs',
         // Email destination. FormSubmit.co will forward submissions here.
         // First submission triggers a one-time confirmation email to you.
-        CONTACT_EMAIL: 'david.malament@gmail.com',
+        CONTACT_EMAIL: 'grow@storyhill.org',
         // Google Maps JS API key (browser key, restricted to your domain)
         GOOGLE_MAPS_API_KEY: 'AIzaSyDr7wIDxWblxVOcAStSxnI-XNC-Lpe3L7s',
         // Optional: starting map center if no coordinates yet
@@ -634,14 +702,14 @@
           .filter((r) => r.some((v) => v && v.trim()))
           .map((r, i) => ({
             id: i,
-            name: (r[0] || '').trim(), // A — leader/contact
+            name: (r[0] || '').trim(), // A — group name (card title)
             time: (r[1] || '').trim(), // B — meeting time
             coords: parseCoords(r[2]), // C — coordinates
-            location: (r[3] || '').trim(), // D — location (card title)
+            location: (r[3] || '').trim(), // D — location (subtitle)
             description: (r[4] || '').trim(), // E — description
             tags: parseTags(r[5] || ''), // F — tags
           }))
-          .filter((g) => g.location);
+          .filter((g) => g.name);
       }
 
       // ============================================================
@@ -650,10 +718,60 @@
       const state = {
         groups: [],
         activeTags: new Set(),
+        activeWhen: new Set(),
         view: 'cards',
         map: null,
         markers: [],
       };
+
+      // ============================================================
+      //  Time-of-day / day-of-week filtering (on column B — free text)
+      // ============================================================
+      const DAYS = [
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday',
+      ];
+      const PERIODS = ['Morning', 'Afternoon', 'Evening'];
+      // Order shown in the filter row.
+      const WHEN_FILTERS = [...PERIODS, ...DAYS];
+
+      // Parse the first clock time out of free text and return minutes since
+      // midnight, or null if none found. Handles "7pm", "9:30 AM", "10", "noon".
+      function parseClockMinutes(text) {
+        if (/\bnoon\b/i.test(text)) return 12 * 60;
+        if (/\bmidnight\b/i.test(text)) return 0;
+        const m = text.match(/\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b/i);
+        if (!m) return null;
+        let h = parseInt(m[1], 10);
+        if (h > 23) return null;
+        const min = m[2] ? parseInt(m[2], 10) : 0;
+        const ap = m[3] ? m[3].toLowerCase() : null;
+        if (ap === 'pm' && h < 12) h += 12;
+        if (ap === 'am' && h === 12) h = 0;
+        return h * 60 + min;
+      }
+
+      // Does a group's meeting time (column B) match a given "when" filter?
+      function matchesWhen(timeText, filter) {
+        const text = (timeText || '').toLowerCase();
+        if (DAYS.includes(filter)) {
+          // Match the day name as a word stem, e.g. "Tuesday" / "Tuesdays".
+          return new RegExp(`\\b${filter.toLowerCase()}s?\\b`).test(text);
+        }
+        // Period filter — match the explicit word first, else bucket by clock.
+        if (text.includes(filter.toLowerCase())) return true;
+        const mins = parseClockMinutes(text);
+        if (mins == null) return false;
+        if (filter === 'Morning') return mins >= 5 * 60 && mins < 12 * 60;
+        if (filter === 'Afternoon') return mins >= 12 * 60 && mins < 17 * 60;
+        if (filter === 'Evening') return mins >= 17 * 60 || mins < 5 * 60;
+        return false;
+      }
 
       const $ = (id) => document.getElementById(id);
       const escapeHtml = (s) =>
@@ -675,8 +793,8 @@
           .join('');
         return `
         <article class="card" data-id="${g.id}">
-          <h2>${escapeHtml(g.location)}</h2>
-          ${g.name ? `<div class="meta">Led by <strong>${escapeHtml(g.name)}</strong></div>` : ''}
+          <h2>${escapeHtml(g.name)}</h2>
+          ${g.location ? `<div class="meta"><strong>${escapeHtml(g.location)}</strong></div>` : ''}
           ${g.time ? `<div class="when">${escapeHtml(g.time)}</div>` : ''}
           ${g.description ? `<p class="desc">${escapeHtml(g.description)}</p>` : ''}
           ${tags ? `<div class="tags">${tags}</div>` : ''}
@@ -686,10 +804,15 @@
       }
 
       function filteredGroups() {
-        if (state.activeTags.size === 0) return state.groups;
-        return state.groups.filter((g) =>
-          [...state.activeTags].every((t) => g.tags.includes(t)),
-        );
+        return state.groups.filter((g) => {
+          // Tags: must match every active tag (AND).
+          const tagOk = [...state.activeTags].every((t) => g.tags.includes(t));
+          // When: must match at least one active when-filter (OR).
+          const whenOk =
+            state.activeWhen.size === 0 ||
+            [...state.activeWhen].some((w) => matchesWhen(g.time, w));
+          return tagOk && whenOk;
+        });
       }
 
       function renderTags() {
@@ -703,6 +826,37 @@
               `<button class="filter-tag${state.activeTags.has(t) ? ' active' : ''}" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</button>`,
           )
           .join('');
+      }
+
+      // 3-letter abbreviations shown in place of full day names on mobile.
+      const DAY_ABBR = {
+        Monday: 'Mon',
+        Tuesday: 'Tue',
+        Wednesday: 'Wed',
+        Thursday: 'Thu',
+        Friday: 'Fri',
+        Saturday: 'Sat',
+        Sunday: 'Sun',
+      };
+
+      function renderWhen() {
+        // data-when is always the full label (the filter logic depends on it).
+        // Days carry both a full and abbreviated label; CSS picks which shows.
+        const btn = (w) => {
+          const abbr = DAY_ABBR[w];
+          const label = abbr
+            ? `<span class="label-full">${escapeHtml(w)}</span><span class="label-abbr">${escapeHtml(abbr)}</span>`
+            : escapeHtml(w);
+          return `<button class="filter-tag${state.activeWhen.has(w) ? ' active' : ''}" data-when="${escapeHtml(w)}">${label}</button>`;
+        };
+        const group = (icon, items) =>
+          `<div class="when-group"><span class="when-icon when-icon-${icon}" aria-hidden="true"></span>${items
+            .map(btn)
+            .join('')}</div>`;
+        $('filter-when').innerHTML =
+          group('time', PERIODS) +
+          '<span class="when-divider" aria-hidden="true"></span>' +
+          group('day', DAYS);
       }
 
       function renderCards() {
@@ -794,7 +948,7 @@
           const marker = new google.maps.Marker({
             position: g.coords,
             map: state.map,
-            title: g.location,
+            title: g.name,
             icon: {
               path: google.maps.SymbolPath.CIRCLE,
               scale: 10,
@@ -833,12 +987,10 @@
       // ============================================================
       function openContactModal(group) {
         $('form-group').value =
-          group.location + (group.name ? ` (${group.name})` : '');
-        $('form-subject').value = `Community Group inquiry: ${group.location}`;
-        $('modal-title').textContent = `Contact: ${group.location}`;
-        $('modal-sub').textContent = group.name
-          ? `Send a message to ${group.name} about this group.`
-          : 'Send a message about this group.';
+          group.name + (group.location ? ` (${group.location})` : '');
+        $('form-subject').value = `Community Group inquiry: ${group.name}`;
+        $('modal-title').textContent = `Contact: ${group.name}`;
+        $('modal-sub').textContent = 'Send a message about this group.';
         $('form-status').classList.add('hidden');
         $('contact-form').reset();
         $('modal').classList.remove('hidden');
@@ -922,6 +1074,18 @@
           if (state.view === 'map') renderMarkers();
         });
 
+        // Time-of-day / day-of-week filter clicks
+        $('filter-when').addEventListener('click', (e) => {
+          const btn = e.target.closest('.filter-tag');
+          if (!btn) return;
+          const w = btn.dataset.when;
+          if (state.activeWhen.has(w)) state.activeWhen.delete(w);
+          else state.activeWhen.add(w);
+          renderWhen();
+          renderCards();
+          if (state.view === 'map') renderMarkers();
+        });
+
         // Card contact button + map overlay contact button (event delegation)
         document.body.addEventListener('click', (e) => {
           const btn = e.target.closest('.contact-btn');
@@ -949,6 +1113,7 @@
           state.groups = await loadGroups();
           $('loading').classList.add('hidden');
           renderTags();
+          renderWhen();
           renderCards();
         } catch (err) {
           $('loading').textContent =
