@@ -235,6 +235,52 @@ Worker's runtime. For local Worker development it goes in `worker/.dev.vars`
   confirmation. If mail suddenly stops, re-check the domain still shows
   **Verified** in Resend.
 
+### 5.5 Managing the Google Maps API key
+
+The Maps key (`CONFIG.GOOGLE_MAPS_API_KEY` in `index.html`) is **public by
+design** — it ships in the page. What keeps it safe is a **referrer restriction**
+in Google Cloud, so it only works when loaded from our domains. Because it isn't
+a secret, it's checked into the repo (unlike `RESEND_API_KEY`). It lives in the
+Google Cloud project under `storyhillchurch@gmail.com`.
+
+**To view or edit the key:**
+1. Sign in to https://console.cloud.google.com as `storyhillchurch@gmail.com`.
+2. Select the Maps project (e.g. `storyhill-maps`) in the top-bar project picker.
+3. **APIs & Services → Credentials.** The key is listed under **API Keys**; click
+   it to see/edit its restrictions.
+
+**The two restrictions this key must always keep** (this is the security boundary):
+- **Application restrictions → Websites** (HTTP referrers) — must include every
+  origin the map loads from:
+  ```
+  https://www.storyhill.org/*
+  https://storyhill.org/*
+  https://dmalament-wheelsup.github.io/*
+  ```
+  The GitHub Pages origin is essential: the map loads from **inside the iframe**,
+  whose origin is GitHub Pages, not Squarespace. Omit it and the map breaks in
+  the embed with `RefererNotAllowedMapError`.
+- **API restrictions → Restrict key → Maps JavaScript API** only. This page uses
+  no other Google API.
+
+**To create a new key** (first-time setup, or rotating a compromised one):
+1. Ensure the project has **billing** linked (Maps requires it; normal traffic
+   for this page stays within Google's free monthly credit).
+2. **APIs & Services → Library →** enable **Maps JavaScript API**.
+3. **Credentials → + Create Credentials → API key.**
+4. Apply the two restrictions above and **Save** (referrer changes take a few
+   minutes to propagate).
+5. Paste it into `CONFIG.GOOGLE_MAPS_API_KEY` in `index.html`, commit, push.
+6. **Verify on the live embed** (Map view renders, no "for development purposes
+   only" watermark, no console key error) — the referrer restriction means it
+   *cannot* be tested from `file://` or localhost.
+7. If rotating, delete the old key from **Credentials** only after the new one is
+   confirmed working live.
+
+**If the map is blank / watermarked / `RefererNotAllowedMapError`:** the current
+host isn't in the key's Websites list — add it (step above), wait a few minutes,
+retry. This is the single most common Maps failure.
+
 ---
 
 ## 6. Iframe embedding (Squarespace ↔ GitHub Pages)
